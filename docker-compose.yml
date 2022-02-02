@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+
+  browserver:
+    image: browserver
+    build: .
+    environment:
+      NODE_ENV: production
+    restart: always
+    ports:
+      - 5434:5434

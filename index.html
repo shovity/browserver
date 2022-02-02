@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Broserver</title>
+    
+    <style>
+        * {
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        html {
+            overflow: hidden;
+        }
+
+        body {
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #terminal {
+            overflow-y: scroll;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            height: 220px;
+            width: 100%;
+            background: #09171C;
+            margin: 0;
+            padding: 5px;
+            color: #d8e4dd;
+            font-family: sans-serif;
+            font-size: 13px;
+            /*line-height: 20px;*/
+        }
+
+        .container {
+            width: 100%;
+            height: 100vh;
+            margin: 7px 0 0 0;
+            position: absolute;
+            overflow-y:auto;
+            overflow-x: hidden;
+        }
+
+        .box {
+            margin: 0px 7px 7px 7px;
+        }
+
+        .cmd::before {
+            content: "root@broserver:~# ";
+            font-family: monospace;
+            color: #337AB7;
+        }
+
+        #cmd {
+            width: calc(100% - 150px);
+            height: 23px;
+            background: none;
+            border: 0;
+            color: #d8e4dd;
+            font-size: 13px;
+            line-height: 23px;
+            outline: none;
+            word-spacing: 7px;
+        }
+
+        .result {
+            cursor: text;
+            word-wrap: break-word;
+        }
+
+        .primary {
+            color: #337AB7;
+        }
+
+        .danger {
+            color: #D9534F;
+        }
+
+        .success {
+            color: #5CB85C;
+        }
+
+        .warning {
+            color: #F0AD4E;
+        }
+
+        .info {
+            color: #5BC0DE;
+        }
+
+        p {
+            margin: 0 0 0 7px;
+            padding: 0;
+        }
+
+        #view {
+            background: #eee;
+            position: fixed;
+            overflow: auto;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: calc(100vh - 220px);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="view"></div>
+
+    
+    <!-- Terminal -->
+    <label id="terminal" for="cmd">
+        <div id="progress"></div>
+        <label for="cmd" id="container">
+            <code id="result"></code>
+            <div class="box cmd">
+                <input id="cmd" autocomplete="false" spellcheck="false" autofocus />
+            </div>
+        </label>
+    </label>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const fetchScreenshot = () => {
+                fetch('/screenshot').then(res => res.json()).then(({ data }) => {
+                    window.view.innerHTML = data.map((url) => {
+                        return `<img style="max-width: 100%" src="data:image/png;base64,${url}">`
+                    }).join('')
+                })
+            }
+
+            
+            function goBot() {
+                window.terminal.scrollTop = terminal.scrollHeight
+            }
+
+            function addLog(meg, type) {
+                window.result.innerHTML += `<p class='${type}'>- ${meg}</p>`
+                goBot()
+            }
+
+            window.cmd.addEventListener('focus', () => {
+                goBot()
+            })
+
+            window.cmd.addEventListener('keydown', event => {
+                goBot()
+
+                if (event.keyCode == 13) {
+                    result.innerHTML += `<p><span class='primary'>root@browserver:~#</span> ${cmd.value}</p>`
+
+                    if (cmd.value === 'r') {
+                        cmd.value = ''
+                        return fetchScreenshot()
+                    }
+                    
+                    fetch(`/command?command=${encodeURIComponent(cmd.value)}`).then(res => res.json()).then(({ data, error }) => {
+                        addLog(data || error.message)
+                    })
+
+                    cmd.value = ''
+                }
+            })
+
+            fetchScreenshot()
+        })
+    </script>
+
+</body>
+</html>

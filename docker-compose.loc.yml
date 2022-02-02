@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+
+  browserver:
+    volumes:
+      - .:/app
+    environment:
+      NODE_ENV: development
+    command: yarn dev -L
