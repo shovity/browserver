@@ -4,11 +4,21 @@ const auth = require('basic-auth')
 const util = require('util')
 
 const browser = require('./browser')
+const boot = require('./boot')
+
 let b = null
 let p = null
 
 
 const app = eroc.createApplication((app) => {
+
+    app.get('/', async (req, res, next) => {
+        return res.sendFile(path.join(__dirname, 'index.html'))
+    })
+
+    app.get('/screenshot', async (req, res, next) => {
+        return res.success(await browser.screenshot())
+    })
 
     app.use(async (req, res, next) => {
         const user = auth(req)
@@ -20,24 +30,6 @@ const app = eroc.createApplication((app) => {
         } else {
             next()
         }
-    })
-
-    app.get('/', async (req, res, next) => {
-        return res.sendFile(path.join(__dirname, 'index.html'))
-    })
-
-    app.get('/new', async (req, res, next) => {
-
-        const page = await browser.instance.newPage()
-        await page.goto('https://google.com')
-        
-        await browser.screenshot()
-
-        return res.success()
-    })
-
-    app.get('/screenshot', async (req, res, next) => {
-        return res.success(await browser.screenshot())
     })
 
     app.get('/command', async (req, res, next) => {
@@ -59,7 +51,6 @@ const app = eroc.createApplication((app) => {
             return res.success(error.message || 'unknow error')
         }
     })
-    
 })
 
 app.start()
@@ -67,4 +58,6 @@ app.start()
 browser.init().then(async () => {
     b = browser.instance
     p = (await b.pages())[0]
+
+    await boot()
 })

@@ -26,10 +26,10 @@ browser.init = async () => {
         ],
     })
 
-    browser.emit('ready')
-
     const pages = await browser.instance.pages()
-    pages[0].goto('https://google.com')
+    await pages[0].close()
+
+    browser.emit('ready')
 }
 
 
