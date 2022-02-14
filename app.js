@@ -5,6 +5,7 @@ const util = require('util')
 
 const browser = require('./browser')
 let b = null
+let p = null
 
 
 const app = eroc.createApplication((app) => {
@@ -62,6 +63,8 @@ const app = eroc.createApplication((app) => {
 })
 
 app.start()
-browser.init().then(() => {
+
+browser.init().then(async () => {
     b = browser.instance
+    p = (await b.pages())[0]
 })
