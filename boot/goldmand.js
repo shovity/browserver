@@ -32,9 +32,11 @@ module.exports = async () => {
     
             const withdraw = async () => {
                 document.querySelectorAll('.minus')[3].click()
+
                 if (+document.querySelector('.orange-color').innerText.replace(/[^0-9]/g, '') > 2) {
                     return log('withdraw fee too large')
                 }
+
                 document.querySelector('.max-staking').click()
                 document.querySelector('.modal-bottom .button').click()
                 await sleep(5000)
@@ -42,37 +44,45 @@ module.exports = async () => {
     
             const tick = async () => {
                 document.querySelector('.mining-hub-menu a').click()
+
                 await sleep(500)
+
                 try {
-                    if (!!document.querySelectorAll('.header-resources-numbers')[1].innerText.replace(/[^1-9]/g, '')) {
+                    if (+document.querySelectorAll('.header-resources-numbers')[1].innerText.split('\n')[1] > 0) {
                         log('Transfer GMM')
                         await transfer(1)
                         return
                     }
-                    if (!!document.querySelectorAll('.header-resources-numbers')[2].innerText.replace(/[^1-9]/g, '')) {
+
+                    if (+document.querySelectorAll('.header-resources-numbers')[2].innerText.split('\n')[1]) {
                         log('Transfer GME')
                         await transfer(2)
                         return
                     }
+
                     if (document.querySelectorAll('.start-mining-button')[2]) {
                         log('Mining')
                         await mine()
                         return
                     }
+
                     if (+document.querySelectorAll('.number')[4].innerText > 50) {
                         log('Withdraw')
                         await withdraw()
                         return
                     }
+
                     log(`Waiting... ${new Date().getSeconds()}`)
                 } catch (error) {
                     log(`${error.message || 'unknow error'}`)
                 }
+
                 await sleep(1500)
             }
     
             document.querySelector('.mining-hub-menu a').click()
             window.__t = Date.now()
+            
             const __t = window.__t
             while (true) {
                 if (window.__t !== __t) {
