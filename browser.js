@@ -9,7 +9,7 @@ browser.screenshot = async () => {
     const pages = await browser.instance.pages()
 
     return Promise.all(pages.map((page, index) => {
-        return page.screenshot({ encoding: "base64" })
+        return page.screenshot({ encoding: 'base64' })
     }))
 
 }

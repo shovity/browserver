@@ -51,7 +51,7 @@
         }
 
         .cmd::before {
-            content: "root@broserver:~# ";
+            content: "root@browserver:~# ";
             font-family: monospace;
             color: #337AB7;
         }
@@ -127,14 +127,15 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            const holder = {}
+
             const fetchScreenshot = () => {
                 fetch('/screenshot').then(res => res.json()).then(({ data }) => {
-                    window.view.innerHTML = data.map((url) => {
-                        return `<img style="max-width: 100%" src="data:image/png;base64,${url}">`
+                    window.view.innerHTML = data.map((url, index) => {
+                        return `<img data-index="${index}" style="max-width: 100%" src="data:image/png;base64,${url}">`
                     }).join('')
                 })
             }
-
             
             function goBot() {
                 window.terminal.scrollTop = terminal.scrollHeight
@@ -160,12 +161,57 @@
                         return fetchScreenshot()
                     }
                     
-                    fetch(`/command?command=${encodeURIComponent(cmd.value)}`).then(res => res.json()).then(({ data, error }) => {
+                    fetch(`/evaluate?content=${encodeURIComponent(cmd.value)}`).then(res => res.json()).then(({ data, error }) => {
                         addLog(data || error.message)
                     })
 
                     cmd.value = ''
                 }
+            })
+
+            window.addEventListener('keyup', (e) => {
+                if (e.key == 'a') {
+                    holder.serve = false
+                }
+            })
+
+            window.addEventListener('keydown', (e) => {
+                if (e.key == 'a') {
+                    holder.serve = true
+                }
+
+                if (holder.serve) {
+
+                    if (e.key === 'r') {
+                        fetchScreenshot()
+                    }
+
+                }
+            })
+
+            window.view.addEventListener('click', (e) => {
+                if (!holder.serve) {
+                    return
+                }
+
+                const target = e.target
+                const rect = target.getBoundingClientRect()
+
+                const x = e.pageX - rect.x
+                const y = e.pageY - rect.y
+                const index = +target.getAttribute('data-index')
+
+                fetch('/action', {
+                    method: 'post',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify({ index, x, y })
+                }).then(res => res.json()).then(({ data, error }) => {
+                    setTimeout(() => {
+                        fetchScreenshot()
+                    }, 500)
+                })
             })
 
             fetchScreenshot()
