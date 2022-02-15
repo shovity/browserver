@@ -208,6 +208,7 @@
                     },
                     body: JSON.stringify({ index, x, y })
                 }).then(res => res.json()).then(({ data, error }) => {
+                    addLog(`Clicked page ${index}: ${x}, ${y}`, 'success')
                     setTimeout(() => {
                         fetchScreenshot()
                     }, 500)
