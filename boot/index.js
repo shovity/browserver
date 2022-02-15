@@ -1,6 +1,7 @@
 const goldmand = require('./goldmand')
+const wax = require('./wax')
 
-module.exports = async () => {
-    await goldmand()
-    console.log('boot: goldmand is running')
+module.exports = {
+    goldmand,
+    wax,
 }

@@ -7,6 +7,8 @@ services:
     build: .
     environment:
       NODE_ENV: production
+    volumes:
+      - ./data:/app/data
     restart: always
     ports:
       - 5434:5434

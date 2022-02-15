@@ -7,8 +7,6 @@ const browser = require('./browser')
 const boot = require('./boot')
 
 let b = null
-let p = null
-
 
 const app = eroc.createApplication((app) => {
 
@@ -57,7 +55,4 @@ app.start()
 
 browser.init().then(async () => {
     b = browser.instance
-    p = (await b.pages())[0]
-
-    await boot()
 })
