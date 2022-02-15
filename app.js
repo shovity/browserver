@@ -55,4 +55,7 @@ app.start()
 
 browser.init().then(async () => {
     b = browser.instance
+
+    await boot.gold().catch(console.error)
+    await boot.farmer().catch(console.error)
 })
