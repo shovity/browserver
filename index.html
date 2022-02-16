@@ -107,6 +107,12 @@
             width: 100vw;
             height: calc(100vh - 220px);
         }
+
+        #view > img {
+            max-width: 100%;
+            border: 1px solid #cdcdcd;
+            margin: 0 5px 5px 0;
+        }
     </style>
 </head>
 <body>
@@ -132,7 +138,7 @@
             const fetchScreenshot = () => {
                 fetch('/screenshot').then(res => res.json()).then(({ data }) => {
                     window.view.innerHTML = data.map((url, index) => {
-                        return `<img data-index="${index}" style="max-width: 100%" src="data:image/png;base64,${url}">`
+                        return `<img data-index="${index}" src="data:image/png;base64,${url}">`
                     }).join('')
                 })
             }
@@ -154,47 +160,45 @@
                 goBot()
 
                 if (event.keyCode == 13) {
-                    result.innerHTML += `<p><span class='primary'>root@browserver:~#</span> ${cmd.value}</p>`
+                    let content = cmd.value
+                    cmd.value = ''
+                    result.innerHTML += `<p><span class='primary'>root@browserver:~#</span> ${content}</p>`
 
-                    if (cmd.value === 'r') {
-                        cmd.value = ''
+                    if (!content) {
+                        addLog('refresh screenshot', 'success')
                         return fetchScreenshot()
                     }
-                    
-                    fetch(`/evaluate?content=${encodeURIComponent(cmd.value)}`).then(res => res.json()).then(({ data, error }) => {
-                        addLog(data || error.message)
-                    })
 
-                    cmd.value = ''
-                }
-            })
-
-            window.addEventListener('keyup', (e) => {
-                if (e.key == 'a') {
-                    holder.serve = false
-                }
-            })
-
-            window.addEventListener('keydown', (e) => {
-                if (e.key == 'a') {
-                    holder.serve = true
-                }
-
-                if (holder.serve) {
-
-                    if (e.key === 'r') {
-                        fetchScreenshot()
+                    if (content === '/n') {
+                        content = `p = await b.newPage()`
                     }
 
+                    if (content.startsWith('/p ')) {
+                        content = `ps = await b.pages(), p = ps[${content.slice(3)}]`
+                    }
+                    
+                    if (content.startsWith('/t ')) {
+                        content = `p.keyboard.type('${content.slice(3)}')`
+                    }
+
+                    if (content.startsWith('/g ')) {
+                        content = `p.goto('${content.slice(3)}')`
+                    }
+                    
+                    fetch(`/evaluate?content=${encodeURIComponent(content)}`).then(res => res.json()).then(({ data, error }) => {
+                        addLog(data || error.message)
+                        setTimeout(fetchScreenshot, 700)
+                    })
                 }
             })
 
             window.view.addEventListener('click', (e) => {
-                if (!holder.serve) {
+                const target = e.target
+
+                if (target.tagName !== 'IMG') {
                     return
                 }
 
-                const target = e.target
                 const rect = target.getBoundingClientRect()
 
                 const x = e.pageX - rect.x
@@ -211,9 +215,10 @@
                     addLog(`Clicked page ${index}: ${x}, ${y}`, 'success')
                     setTimeout(() => {
                         fetchScreenshot()
-                    }, 500)
+                    }, 100)
                 })
             })
+
 
             fetchScreenshot()
         })
