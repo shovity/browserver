@@ -7,14 +7,14 @@
 env=$1
 
 case "$env" in
-  loc)
-    docker-compose -f docker-compose.yml -f docker-compose.loc.yml up
+  local)
+    docker-compose -f docker-compose.yml -f docker-compose.local.yml up
     ;;
   
-  pro)
+  prod)
     docker-compose -f docker-compose.yml up -d
     ;;
 
   *)
-    echo "environment not found! please choose [pro, loc]"
+    echo "environment not found! please choose [prod, local]"
 esac

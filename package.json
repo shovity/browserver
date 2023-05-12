@@ -9,11 +9,11 @@
   "scripts": {
     "start": "node app",
     "dev": "nodemon app",
-    "up": "sh bin/up"
+    "up": "sh bin/up.sh"
   },
   "dependencies": {
     "basic-auth": "^2.0.1",
-    "eroc": "^1.6.8",
+    "eroc": "^2.3.4",
     "puppeteer": "^13.1.3"
   },
   "devDependencies": {

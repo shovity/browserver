@@ -1,2 +1,11 @@
+.git
+.dockerignore
+.eslintrc.js
+.prettierignore
+.gitignore
+.prettierrc
+docker-compose.*
+Dockerfile
 node_modules
 data
+bin

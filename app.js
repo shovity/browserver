@@ -1,5 +1,5 @@
-const eroc = require('eroc')
-const path = require('path')
+const { create, config, Router } = require('eroc')
+const path = require('node:path')
 const auth = require('basic-auth')
 const util = require('util')
 
@@ -8,9 +8,8 @@ const boot = require('./boot')
 
 let b = null
 
-const app = eroc.createApplication((app) => {
-
-    const router = eroc.Router()
+create((app) => {
+    const router = Router()
 
     router.get('/', async (req, res, next) => {
         return res.sendFile(path.join(__dirname, 'index.html'))
@@ -20,25 +19,27 @@ const app = eroc.createApplication((app) => {
         return res.success(await browser.screenshot())
     })
 
-    router.use(async (req, res, next) => {
-        const user = auth(req)
-    
-        if (user === undefined || user['name'] !== 'shovity' || user['pass'] !== 'ytivohs') {
-            res.statusCode = 401
-            res.setHeader('WWW-Authenticate', 'Basic realm="root"')
-            res.end('Unauthorized')
-        } else {
-            next()
-        }
-    })
+    if (config.auth) {
+        const [username, pass] = config.auth.split(':')
+
+        router.use(async (req, res, next) => {
+            const user = auth(req)
+        
+            if (user === undefined || user['name'] !== username || user['pass'] !== pass) {
+                res.statusCode = 401
+                res.setHeader('WWW-Authenticate', 'Basic realm="root"')
+                res.end('Unauthorized')
+            } else {
+                next()
+            }
+        })
+    }
 
     router.get('/evaluate', async (req, res, next) => {
         const content = req.gp('content')
 
         if (content[0] === '/') {
             const action = content.split(' ')[0].slice(1)
-
-            
             return res.success(action)
         }
 
@@ -58,7 +59,6 @@ const app = eroc.createApplication((app) => {
         const y = req.gp('y')
 
         const pages = await b.pages()
-
         await pages[index].mouse.click(x, y)
         
         return res.success()
@@ -67,9 +67,6 @@ const app = eroc.createApplication((app) => {
 
     app.use(router)
 })
-
-app.start()
-
 
 browser.init().then(async () => {
     b = browser.instance
