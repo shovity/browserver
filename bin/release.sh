@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 git pull
-sudo docker-compose build
-sudo yarn up pro
+sudo docker compose build
+sudo yarn up prod

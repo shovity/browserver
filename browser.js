@@ -1,17 +1,16 @@
 const Event = require('events')
 const puppeteer = require('puppeteer')
 
-
 const browser = new Event()
-
 
 browser.screenshot = async () => {
     const pages = await browser.instance.pages()
 
-    return Promise.all(pages.map((page, index) => {
-        return page.screenshot({ encoding: 'base64' })
-    }))
-
+    return Promise.all(
+        pages.map((page) => {
+            return page.screenshot({ encoding: 'base64' })
+        }),
+    )
 }
 
 browser.init = async () => {
@@ -31,7 +30,5 @@ browser.init = async () => {
 
     browser.emit('ready')
 }
-
-
 
 module.exports = browser

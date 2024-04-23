@@ -1,20 +1,23 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 # Usage:
-# sh bin/up pro
-# sh bin/up loc
+# bash bin/up prod
+# bash bin/up local
 
 env=$1
+scale=${2:-3}
+folder=${PWD##*/}
+service=${folder:0:${#folder}-8}
 
 case "$env" in
   local)
-    docker-compose -f docker-compose.yml -f docker-compose.local.yml up
+    docker compose -f docker-compose.yml -f docker-compose.local.yml up
     ;;
   
   prod)
-    docker-compose -f docker-compose.yml up -d
+    docker compose -f docker-compose.yml up -d --scale $service=$scale
     ;;
 
   *)
-    echo "environment not found! please choose [prod, local]"
+    echo "Environment not found! please choose [local, prod]"
 esac

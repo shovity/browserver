@@ -2,9 +2,7 @@ const { create, config, Router } = require('eroc')
 const path = require('node:path')
 const auth = require('basic-auth')
 const util = require('util')
-
 const browser = require('./browser')
-const boot = require('./boot')
 
 let b = null
 
@@ -24,7 +22,7 @@ create((app) => {
 
         router.use(async (req, res, next) => {
             const user = auth(req)
-        
+
             if (user === undefined || user['name'] !== username || user['pass'] !== pass) {
                 res.statusCode = 401
                 res.setHeader('WWW-Authenticate', 'Basic realm="root"')
@@ -49,7 +47,7 @@ create((app) => {
 
             return res.success(util.inspect(result))
         } catch (error) {
-            return res.success(error.message || 'unknow error')
+            return res.success(error.message || 'Unknown error')
         }
     })
 
@@ -60,9 +58,8 @@ create((app) => {
 
         const pages = await b.pages()
         await pages[index].mouse.click(x, y)
-        
+
         return res.success()
-        
     })
 
     app.use(router)
